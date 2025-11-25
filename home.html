@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IEEE Student Branch - Innovation Hub</title>
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Open Sans (Official IEEE Font) & Poppins for Headers -->
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700&family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Configure Tailwind -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'ieee-blue': '#00629B',
+                        'ieee-dark-blue': '#002855',
+                        'ieee-gold': '#F7A600',
+                        'ieee-bg': '#F0F4F8',
+                    },
+                    fontFamily: {
+                        sans: ['Open Sans', 'sans-serif'],
+                        heading: ['Poppins', 'sans-serif'],
+                    },
+                    backgroundImage: {
+                        'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Custom CSS -->
+    <style>
+        /* --- General Styling --- */
+        body {
+            background-color: #F8FAFC;
+            color: #333;
+        }
+        
+        h1, h2, h3, h4, h5, h6 {
+            font-family: 'Poppins', sans-serif;
+        }
+
+        /* --- Scrollbar --- */
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #00629B;
+            border-radius: 5px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #002855;
+        }
+
+        /* --- Utility Classes --- */
+        .page-content {
+            display: none;
+            opacity: 0;
+            transition: opacity 0.5s ease-in-out;
+        }
+        
+        /* Animation: Fade In Up */
+        .fade-in-up {
+            animation: fadeInUp 0.8s ease-out forwards;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* --- Components --- */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .nav-link {
+            position: relative;
+        }
+        
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: 0;
+            left: 0;
+            background-color: #F7A600;
+            transition: width 0.3s;
+        }
+        
+        .nav-link:hover::after, .active-link::after {
+            width: 100%;
+        }
+
+        /* --- Video Background --- */
+        .video-wrapper {
+            position: relative;
+            overflow: hidden;
+            border-radius: 0 0 50px 50px; /* Modern curved bottom */
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+
+        /* --- Membership Section (Parallax) --- */
+        .membership-section {
+            background-image: linear-gradient(rgba(0, 98, 155, 0.85), rgba(0, 40, 85, 0.9)), url('https://picsum.photos/seed/tech/1920/1080');
+            background-attachment: fixed;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-size: cover;
+            color: white;
+            clip-path: polygon(0 0, 100% 5%, 100% 100%, 0 95%);
+        }
+
+        /* --- Modal --- */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 100;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.6);
+            backdrop-filter: blur(5px);
+        }
+        .modal-content {
+            margin: 10% auto;
+            animation: slideIn 0.3s ease-out;
+        }
+        @keyframes slideIn {
+            from { transform: translateY(-50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <!-- AI Icebreaker Modal -->
+    <div id="icebreaker-modal" class="modal">
+        <div class="modal-content bg-white rounded-2xl shadow-2xl p-8 max-w-lg w-[90%] relative border-t-4 border-ieee-blue">
+            <span class="absolute top-4 right-6 text-3xl font-bold text-gray-400 hover:text-ieee-blue cursor-pointer" onclick="closeModal()">&times;</span>
+            <h3 id="modal-title" class="text-2xl font-bold text-ieee-dark-blue mb-4 flex items-center gap-2">
+                <svg class="w-6 h-6 text-ieee-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                AI Suggestions
+            </h3>
+            <div id="modal-loader" class="text-center py-8 hidden">
+                <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-ieee-blue mx-auto mb-2"></div>
+                <p class="text-gray-500 text-sm animate-pulse">Consulting the neural network...</p>
+            </div>
+            <div id="modal-results" class="text-gray-700 whitespace-pre-wrap leading-relaxed text-sm bg-gray-50 p-4 rounded-lg border border-gray-100"></div>
+        </div>
+    </div>
+
+    <!-- Navigation -->
+    <header class="sticky top-0 z-50 bg-white/95 backdrop-blur-md shadow-md border-b border-gray-100 transition-all duration-300" id="navbar">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-20">
+                <!-- Logo -->
+                <a href="#home" class="flex items-center gap-3 group" onclick="showPage('home')">
+                    <div class="bg-ieee-blue text-white p-2 rounded-lg group-hover:bg-ieee-dark-blue transition">
+                        <!-- Simple IEEE Kite Icon representation -->
+                        <svg class="h-6 w-6" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L2 22h20L12 2zm0 3.5L18.5 20h-13L12 5.5z"/></svg>
+                    </div>
+                    <div class="flex flex-col">
+                        <span class="text-lg font-bold text-ieee-dark-blue leading-tight tracking-tight">IEEE STUDENT BRANCH</span>
+                        <span class="text-xs font-semibold text-gray-500 tracking-widest uppercase">Innovation Hub</span>
+                    </div>
+                </a>
+
+                <!-- Desktop Nav -->
+                <nav class="hidden lg:flex space-x-1 text-sm font-semibold text-gray-600 uppercase tracking-wide">
+                    <a href="#home" class="nav-link px-3 py-2 hover:text-ieee-blue transition" data-page="home">Home</a>
+                    <a href="#about" class="nav-link px-3 py-2 hover:text-ieee-blue transition" data-page="about">About</a>
+                    <a href="#events" class="nav-link px-3 py-2 hover:text-ieee-blue transition" data-page="events">Events</a>
+                    <a href="#societies" class="nav-link px-3 py-2 hover:text-ieee-blue transition" data-page="societies">Societies</a>
+                    <a href="#gallery" class="nav-link px-3 py-2 hover:text-ieee-blue transition" data-page="gallery">Gallery</a>
+                    <a href="#contact" class="nav-link px-3 py-2 hover:text-ieee-blue transition" data-page="contact">Contact</a>
+                    <a href="#membership" class="ml-4 px-5 py-2.5 bg-ieee-blue text-white rounded-full hover:bg-ieee-dark-blue hover:shadow-lg transition transform hover:-translate-y-0.5" data-page="membership">Join IEEE</a>
+                </nav>
+
+                <!-- Mobile Menu Button -->
+                <button id="menu-button" class="lg:hidden text-ieee-blue focus:outline-none">
+                    <svg class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"/></svg>
+                </button>
+            </div>
+        </div>
+        
+        <!-- Mobile Dropdown -->
+        <div id="mobile-menu" class="hidden lg:hidden bg-white border-t border-gray-100 absolute w-full shadow-xl">
+            <div class="flex flex-col p-4 space-y-2">
+                <a href="#home" class="mobile-nav-link p-3 rounded-lg hover:bg-gray-50 text-ieee-blue font-medium" data-page="home">Home</a>
+                <a href="#about" class="mobile-nav-link p-3 rounded-lg hover:bg-gray-50 text-gray-600" data-page="about">About</a>
+                <a href="#events" class="mobile-nav-link p-3 rounded-lg hover:bg-gray-50 text-gray-600" data-page="events">Events</a>
+                <a href="#societies" class="mobile-nav-link p-3 rounded-lg hover:bg-gray-50 text-gray-600" data-page="societies">Societies</a>
+                <a href="#gallery" class="mobile-nav-link p-3 rounded-lg hover:bg-gray-50 text-gray-600" data-page="gallery">Gallery</a>
+                <a href="#membership" class="mobile-nav-link p-3 rounded-lg bg-ieee-gold/10 text-ieee-dark-blue font-bold text-center" data-page="membership">Membership Drive</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main id="app-content" class="min-h-screen pb-20">
+        
+        <!-- ================= HOME SECTION ================= -->
+        <section id="home" class="page-content block opacity-100">
+            <!-- Hero Video Area -->
+            <div class="video-wrapper h-[85vh] w-full flex items-center justify-center relative mb-16">
+                <video autoplay muted loop playsinline class="absolute inset-0 w-full h-full object-cover z-0 opacity-90">
+                    <!-- Replace with your actual video URL -->
+                    <source src="https://example.com/your-video.mp4" type="video/mp4">
+                    <div class="bg-gray-800 w-full h-full flex items-center justify-center text-white">Video Placeholder</div>
+                </video>
+                <!-- Gradient Overlay -->
+                <div class="absolute inset-0 bg-gradient-to-r from-ieee-dark-blue/90 via-ieee-blue/80 to-transparent z-10"></div>
+                
+                <!-- Hero Content -->
+                <div class="relative z-20 container mx-auto px-6 text-white pt-20">
+                    <div class="max-w-3xl fade-in-up">
+                        <span class="inline-block py-1 px-3 rounded-full bg-ieee-gold text-ieee-dark-blue text-xs font-bold uppercase tracking-wider mb-4 shadow-lg">Welcome to the Future</span>
+                        <h1 class="text-5xl md:text-7xl font-bold leading-tight mb-6 drop-shadow-lg">
+                            Empowering <br>
+                            <span class="text-transparent bg-clip-text bg-gradient-to-r from-ieee-gold to-yellow-300">Innovation</span> Together.
+                        </h1>
+                        <p class="text-xl md:text-2xl font-light text-gray-100 mb-8 max-w-2xl">
+                            The premier hub for engineering excellence, leadership, and professional networking.
+                        </p>
+                        <div class="flex gap-4">
+                            <a href="#membership" class="px-8 py-4 bg-ieee-gold text-ieee-dark-blue font-bold rounded-full shadow-xl hover:bg-white transition duration-300 transform hover:scale-105" data-page="membership">Join the Drive</a>
+                            <a href="#about" class="px-8 py-4 border-2 border-white text-white font-bold rounded-full hover:bg-white hover:text-ieee-blue transition duration-300" data-page="about">Learn More</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stats Bar -->
+            <div class="container mx-auto px-6 -mt-24 relative z-30 mb-20">
+                <div class="bg-white rounded-2xl shadow-xl p-8 grid grid-cols-1 md:grid-cols-3 gap-8 divide-y md:divide-y-0 md:divide-x divide-gray-100 text-center">
+                    <div class="p-4 group hover:bg-gray-50 rounded-xl transition">
+                        <p class="text-5xl font-bold text-ieee-blue mb-2 group-hover:scale-110 transition-transform">500+</p>
+                        <p class="text-gray-500 font-medium uppercase text-sm tracking-wide">Active Members</p>
+                    </div>
+                    <div class="p-4 group hover:bg-gray-50 rounded-xl transition">
+                        <p class="text-5xl font-bold text-ieee-gold mb-2 group-hover:scale-110 transition-transform">30+</p>
+                        <p class="text-gray-500 font-medium uppercase text-sm tracking-wide">Annual Events</p>
+                    </div>
+                    <div class="p-4 group hover:bg-gray-50 rounded-xl transition">
+                        <p class="text-5xl font-bold text-ieee-dark-blue mb-2 group-hover:scale-110 transition-transform">12</p>
+                        <p class="text-gray-500 font-medium uppercase text-sm tracking-wide">Awards Won</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- News Grid Preview -->
+            <div class="container mx-auto px-6 mb-20">
+                <div class="flex justify-between items-end mb-8 border-b border-gray-200 pb-4">
+                    <h2 class="text-3xl font-bold text-ieee-dark-blue">Latest Happenings</h2>
+                    <a href="#news" class="text-ieee-blue font-semibold hover:text-ieee-gold transition" data-page="news">View All News &rarr;</a>
+                </div>
+                <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <!-- Dynamic Card 1 -->
+                    <div class="group bg-white rounded-xl shadow-md hover:shadow-2xl transition duration-300 overflow-hidden border border-gray-100">
+                        <div class="h-48 overflow-hidden relative">
+                            <img src="https://picsum.photos/seed/code/600/400" alt="News" class="w-full h-full object-cover group-hover:scale-110 transition duration-500">
+                            <div class="absolute top-4 left-4 bg-ieee-blue text-white text-xs font-bold px-3 py-1 rounded">TECH</div>
+                        </div>
+                        <div class="p-6">
+                            <p class="text-sm text-gray-400 mb-2">Oct 12, 2025</p>
+                            <h3 class="text-xl font-bold text-gray-800 mb-3 group-hover:text-ieee-blue transition">Hackathon Winners Announced</h3>
+                            <p class="text-gray-600 text-sm line-clamp-2">Our team secured 1st place in the regional coding championship with their innovative AI solution.</p>
+                        </div>
+                    </div>
+                    <!-- Dynamic Card 2 -->
+                    <div class="group bg-white rounded-xl shadow-md hover:shadow-2xl transition duration-300 overflow-hidden border border-gray-100">
+                        <div class="h-48 overflow-hidden relative">
+                            <img src="https://picsum.photos/seed/robot/600/400" alt="News" class="w-full h-full object-cover group-hover:scale-110 transition duration-500">
+                            <div class="absolute top-4 left-4 bg-ieee-gold text-white text-xs font-bold px-3 py-1 rounded">EVENT</div>
+                        </div>
+                        <div class="p-6">
+                            <p class="text-sm text-gray-400 mb-2">Sep 28, 2025</p>
+                            <h3 class="text-xl font-bold text-gray-800 mb-3 group-hover:text-ieee-blue transition">Robotics Workshop</h3>
+                            <p class="text-gray-600 text-sm line-clamp-2">Over 100 students participated in our hands-on robotics and IoT workshop weekend.</p>
+                        </div>
+                    </div>
+                    <!-- Dynamic Card 3 -->
+                    <div class="group bg-white rounded-xl shadow-md hover:shadow-2xl transition duration-300 overflow-hidden border border-gray-100">
+                        <div class="h-48 overflow-hidden relative">
+                            <img src="https://picsum.photos/seed/meeting/600/400" alt="News" class="w-full h-full object-cover group-hover:scale-110 transition duration-500">
+                            <div class="absolute top-4 left-4 bg-purple-500 text-white text-xs font-bold px-3 py-1 rounded">COMMUNITY</div>
+                        </div>
+                        <div class="p-6">
+                            <p class="text-sm text-gray-400 mb-2">Sep 15, 2025</p>
+                            <h3 class="text-xl font-bold text-gray-800 mb-3 group-hover:text-ieee-blue transition">WIE Panel Discussion</h3>
+                            <p class="text-gray-600 text-sm line-clamp-2">Inspiring stories shared by women leaders in the tech industry at our annual summit.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= ABOUT SECTION ================= -->
+        <section id="about" class="page-content container mx-auto px-6 py-12">
+            <div class="flex flex-col md:flex-row gap-12 items-center mb-16">
+                <div class="w-full md:w-1/2">
+                    <img src="https://picsum.photos/seed/team/800/600" alt="About Team" class="rounded-2xl shadow-2xl">
+                </div>
+                <div class="w-full md:w-1/2 space-y-6">
+                    <span class="text-ieee-gold font-bold tracking-widest uppercase text-sm">Who We Are</span>
+                    <h2 class="text-4xl font-bold text-ieee-dark-blue">Fostering Technological <br>Innovation for Humanity</h2>
+                    <p class="text-gray-600 leading-relaxed">
+                        The IEEE Student Branch is more than just a club; it's a launchpad for future engineers. We bridge the gap between academic theory and industry practice through hands-on projects, expert seminars, and global networking.
+                    </p>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="bg-blue-50 p-4 rounded-lg border-l-4 border-ieee-blue">
+                            <h4 class="font-bold text-ieee-blue">Vision</h4>
+                            <p class="text-xs text-gray-600 mt-1">To be the leading student community for technical excellence.</p>
+                        </div>
+                        <div class="bg-yellow-50 p-4 rounded-lg border-l-4 border-ieee-gold">
+                            <h4 class="font-bold text-ieee-gold">Mission</h4>
+                            <p class="text-xs text-gray-600 mt-1">Empowering students with skills to solve real-world problems.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-white p-8 rounded-xl card-shadow">
+                    <h2 class="text-2xl font-semibold text-ieee-blue mb-4">Our Mission and Vision</h2>
+                    <p class="text-gray-700 mb-4">The IEEE Student Branch is dedicated to promoting the engineering and technological sciences among students. Our mission is to inspire, educate, and connect our members with the global professional community through workshops, events, and technical projects.</p>
+                    
+                    <h3 class="text-xl font-semibold text-ieee-gold mt-6 mb-3">Meet the Team</h3>
+                    <div class="grid md:grid-cols-4 gap-6">
+                        <!-- Officer Card 1 -->
+                        <div class="text-center p-4 bg-ieee-light rounded-lg">
+                            <div class="w-24 h-24 mx-auto rounded-full bg-ieee-blue/20 flex items-center justify-center mb-3">Photo</div>
+                            <p class="font-bold text-ieee-blue">Dr. Jane Doe</p>
+                            <p class="text-sm text-gray-600">Branch Counselor</p>
+                        </div>
+                        <!-- Officer Card 2 -->
+                        <div class="text-center p-4 bg-ieee-light rounded-lg">
+                            <div class="w-24 h-24 mx-auto rounded-full bg-ieee-blue/20 flex items-center justify-center mb-3">Photo</div>
+                            <p class="font-bold text-ieee-blue">John Smith</p>
+                            <p class="text-sm text-gray-600">Chairperson</p>
+                        </div>
+                        <!-- Officer Card 3 -->
+                        <div class="text-center p-4 bg-ieee-light rounded-lg">
+                            <div class="w-24 h-24 mx-auto rounded-full bg-ieee-blue/20 flex items-center justify-center mb-3">Photo</div>
+                            <p class="font-bold text-ieee-blue">Alice Chen</p>
+                            <p class="text-sm text-gray-600">Vice-Chair</p>
+                        </div>
+                         <!-- Officer Card 4 -->
+                        <div class="text-center p-4 bg-ieee-light rounded-lg">
+                            <div class="w-24 h-24 mx-auto rounded-full bg-ieee-blue/20 flex items-center justify-center mb-3">Photo</div>
+                            <p class="font-bold text-ieee-blue">Bob Lee</p>
+                            <p class="text-sm text-gray-600">Secretary</p>
+                        </div>
+                    </div>
+                </div>
+        </section>
+
+        <!-- ================= EVENTS SECTION (With Gemini) ================= -->
+        <section id="events" class="page-content container mx-auto px-6 py-12">
+            <h2 class="text-4xl font-bold text-ieee-dark-blue text-center mb-4">Upcoming Events</h2>
+            <p class="text-center text-gray-500 mb-12 max-w-2xl mx-auto">Join us for workshops, seminars, and networking sessions. Use our AI tool to prepare for networking!</p>
+            
+            <div class="space-y-6">
+                <!-- Event Item 1 -->
+                <div class="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden flex flex-col md:flex-row hover:shadow-xl transition duration-300">
+                    <div class="md:w-48 bg-ieee-blue text-white flex flex-col items-center justify-center p-6 text-center">
+                        <span class="text-3xl font-bold">05</span>
+                        <span class="text-sm uppercase tracking-wider">MAR 2026</span>
+                    </div>
+                    <div class="p-6 flex-1 flex flex-col justify-center">
+                        <h3 class="text-2xl font-bold text-gray-800 mb-2">Professional Networking Mixer</h3>
+                        <p class="text-gray-600 mb-4">An evening to connect with alumni and industry leaders in a relaxed setting.</p>
+                        <div class="flex items-center gap-4">
+                            <button onclick="triggerIcebreakerGeneration('Professional Networking Mixer', 'Networking with alumni')" class="flex items-center gap-2 text-sm font-bold text-ieee-blue bg-blue-50 px-4 py-2 rounded-lg hover:bg-ieee-blue hover:text-white transition">
+                                <span>✨</span> AI Icebreakers
+                            </button>
+                            <span class="text-xs font-semibold text-green-600 bg-green-100 px-3 py-1 rounded-full">Open for Registration</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Event Item 2 -->
+                <div class="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden flex flex-col md:flex-row hover:shadow-xl transition duration-300">
+                    <div class="md:w-48 bg-gray-800 text-white flex flex-col items-center justify-center p-6 text-center">
+                        <span class="text-3xl font-bold">10</span>
+                        <span class="text-sm uppercase tracking-wider">APR 2026</span>
+                    </div>
+                    <div class="p-6 flex-1 flex flex-col justify-center">
+                        <h3 class="text-2xl font-bold text-gray-800 mb-2">IoT & Cloud Computing Workshop</h3>
+                        <p class="text-gray-600 mb-4">A 3-day rigorous bootcamp on AWS and Azure cloud deployment for IoT devices.</p>
+                        <div class="flex items-center gap-4">
+                            <button onclick="triggerIcebreakerGeneration('IoT Workshop', 'Cloud computing and sensors')" class="flex items-center gap-2 text-sm font-bold text-ieee-blue bg-blue-50 px-4 py-2 rounded-lg hover:bg-ieee-blue hover:text-white transition">
+                                <span>✨</span> AI Icebreakers
+                            </button>
+                            <span class="text-xs font-semibold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">Coming Soon</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= SOCIETIES SECTION ================= -->
+        <section id="societies" class="page-content container mx-auto px-6 py-12">
+            <h2 class="text-4xl font-bold text-ieee-dark-blue text-center mb-12">Technical Societies</h2>
+            <div class="grid md:grid-cols-3 gap-8">
+                <!-- CS -->
+                <div class="bg-white p-8 rounded-2xl shadow-lg border-t-4 border-orange-500 hover:-translate-y-2 transition duration-300">
+                    <div class="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mb-6 text-orange-600">
+                        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+                    </div>
+                    <h3 class="text-2xl font-bold text-gray-800 mb-2">Computer Society</h3>
+                    <p class="text-gray-600 text-sm">Driving the AI and Software revolution.</p>
+                </div>
+                <!-- PES -->
+                <div class="bg-white p-8 rounded-2xl shadow-lg border-t-4 border-green-500 hover:-translate-y-2 transition duration-300">
+                    <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-6 text-green-600">
+                        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                    </div>
+                    <h3 class="text-2xl font-bold text-gray-800 mb-2">Power & Energy</h3>
+                    <p class="text-gray-600 text-sm">Sustainable energy for a greener future.</p>
+                </div>
+                <!-- WIE -->
+                <div class="bg-white p-8 rounded-2xl shadow-lg border-t-4 border-purple-500 hover:-translate-y-2 transition duration-300">
+                    <div class="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mb-6 text-purple-600">
+                        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+                    </div>
+                    <h3 class="text-2xl font-bold text-gray-800 mb-2">Women in Engineering</h3>
+                    <p class="text-gray-600 text-sm">Inspiring the next generation of women leaders.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= GALLERY SECTION ================= -->
+        <section id="gallery" class="page-content container mx-auto px-6 py-12">
+            <h2 class="text-4xl font-bold text-ieee-dark-blue mb-8">Gallery</h2>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <img src="https://picsum.photos/seed/event1/400/300" class="rounded-lg shadow-md hover:opacity-80 transition cursor-pointer">
+                <img src="https://picsum.photos/seed/event2/400/300" class="rounded-lg shadow-md hover:opacity-80 transition cursor-pointer">
+                <img src="https://picsum.photos/seed/event3/400/300" class="rounded-lg shadow-md hover:opacity-80 transition cursor-pointer">
+                <img src="https://picsum.photos/seed/event4/400/300" class="rounded-lg shadow-md hover:opacity-80 transition cursor-pointer">
+                <img src="https://picsum.photos/seed/event5/400/300" class="rounded-lg shadow-md hover:opacity-80 transition cursor-pointer">
+                <img src="https://picsum.photos/seed/event6/400/300" class="rounded-lg shadow-md hover:opacity-80 transition cursor-pointer">
+                <img src="https://picsum.photos/seed/event7/400/300" class="rounded-lg shadow-md hover:opacity-80 transition cursor-pointer">
+                <img src="https://picsum.photos/seed/event8/400/300" class="rounded-lg shadow-md hover:opacity-80 transition cursor-pointer">
+            </div>
+        </section>
+
+        <!-- ================= MEMBERSHIP DRIVE SECTION (NEW & STYLED) ================= -->
+        <section id="membership" class="page-content membership-section py-32 mt-12 text-center relative overflow-hidden">
+            <div class="absolute inset-0 bg-black/40"></div> <!-- Additional Overlay -->
+            <div class="container mx-auto px-6 relative z-10">
+                <div class="max-w-4xl mx-auto">
+                    <h2 class="text-5xl md:text-6xl font-extrabold mb-6 tracking-tight text-white drop-shadow-xl">
+                        Start Your Journey.
+                    </h2>
+                    <p class="text-xl md:text-2xl text-gray-200 mb-10 font-light">
+                        Unlock access to the world's largest technical library, exclusive scholarships, and a network of 400,000+ experts.
+                    </p>
+                    <div class="flex flex-col md:flex-row justify-center gap-6">
+                        <div class="glass-card p-8 rounded-2xl text-left hover:scale-105 transition duration-300">
+                            <h3 class="text-xl font-bold text-ieee-gold mb-2">Student Member</h3>
+                            <p class="text-3xl font-bold mb-4">$27<span class="text-sm font-normal opacity-70">/year</span></p>
+                            <ul class="text-sm space-y-2 mb-6 opacity-90">
+                                <li>✓ Digital Xplore Access</li>
+                                <li>✓ Career Resources</li>
+                                <li>✓ Local Branch Events</li>
+                            </ul>
+                            <a href="#" class="block text-center bg-white text-ieee-blue font-bold py-3 rounded-lg hover:bg-ieee-gold hover:text-white transition">Join Now</a>
+                        </div>
+                        <div class="glass-card p-8 rounded-2xl text-left border-2 border-ieee-gold transform md:-translate-y-4 shadow-2xl hover:scale-105 transition duration-300">
+                            <div class="absolute top-0 right-0 bg-ieee-gold text-xs font-bold px-3 py-1 rounded-bl-lg text-black">BEST VALUE</div>
+                            <h3 class="text-xl font-bold text-ieee-gold mb-2">Student + Society</h3>
+                            <p class="text-3xl font-bold mb-4">$40<span class="text-sm font-normal opacity-70">/year</span></p>
+                            <ul class="text-sm space-y-2 mb-6 opacity-90">
+                                <li>✓ All Student Benefits</li>
+                                <li>✓ <b>+1</b> Technical Society</li>
+                                <li>✓ Exclusive Magazines</li>
+                            </ul>
+                            <a href="#" class="block text-center bg-ieee-gold text-ieee-dark-blue font-bold py-3 rounded-lg hover:bg-white transition">Join Bundle</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= CONTACT ================= -->
+        <section id="contact" class="page-content container mx-auto px-6 py-12">
+            <div class="bg-ieee-dark-blue rounded-3xl p-12 text-white text-center">
+                <h2 class="text-3xl font-bold mb-4">Get In Touch</h2>
+                <p class="text-gray-300 mb-8">Have a question or want to collaborate? Send us a message.</p>
+                <a href="mailto:ieee@example.com" class="text-2xl font-bold hover:text-ieee-gold transition underline decoration-ieee-gold underline-offset-4">ieee-sb@university.edu</a>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-gray-400 py-12 mt-12 border-t-4 border-ieee-gold">
+        <div class="container mx-auto px-6 text-center">
+            <div class="mb-6 flex justify-center gap-4">
+                <a href="#" class="hover:text-white transition">Instagram</a>
+                <span class="text-gray-700">•</span>
+                <a href="#" class="hover:text-white transition">LinkedIn</a>
+                <span class="text-gray-700">•</span>
+                <a href="#" class="hover:text-white transition">Twitter</a>
+            </div>
+            <p>&copy; 2026 IEEE Student Branch. Advancing Technology for Humanity.</p>
+        </div>
+    </footer>
+
+    <!-- Logic -->
+    <script>
+        const navLinks = document.querySelectorAll('.nav-link, .mobile-nav-link');
+        const sections = document.querySelectorAll('.page-content');
+        const menuButton = document.getElementById('menu-button');
+        const mobileMenu = document.getElementById('mobile-menu');
+
+        // Modal Logic
+        const modal = document.getElementById('icebreaker-modal');
+        const modalLoader = document.getElementById('modal-loader');
+        const modalResults = document.getElementById('modal-results');
+        const modalTitle = document.getElementById('modal-title');
+
+        function showPage(pageId) {
+            // Hide all
+            sections.forEach(sec => {
+                sec.style.display = 'none';
+                sec.classList.remove('fade-in-up');
+            });
+            
+            // Show target
+            const target = document.getElementById(pageId);
+            if(target) {
+                target.style.display = 'block';
+                // Small delay to trigger animation
+                setTimeout(() => target.classList.add('fade-in-up'), 10);
+                window.scrollTo({top: 0, behavior: 'smooth'});
+            }
+
+            // Update Nav
+            navLinks.forEach(link => {
+                if(link.dataset.page === pageId) link.classList.add('text-ieee-blue');
+                else link.classList.remove('text-ieee-blue');
+            });
+            
+            // Close mobile menu
+            mobileMenu.classList.add('hidden');
+        }
+
+        // Routing
+        window.addEventListener('hashchange', () => {
+            let hash = window.location.hash.substring(1) || 'home';
+            showPage(hash);
+        });
+
+        // Initial Load
+        document.addEventListener('DOMContentLoaded', () => {
+            let hash = window.location.hash.substring(1) || 'home';
+            showPage(hash);
+        });
+
+        // Mobile Menu
+        menuButton.addEventListener('click', () => {
+            mobileMenu.classList.toggle('hidden');
+        });
+
+        // Gemini API Logic
+        const apiKey = ""; // API key injected by environment
+        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
+
+        window.triggerIcebreakerGeneration = async (title, desc) => {
+            modal.style.display = 'block';
+            modalLoader.style.display = 'block';
+            modalResults.innerHTML = '';
+            
+            const prompt = `Generate 3 fun, professional icebreaker questions for an event titled "${title}" described as "${desc}". Format as a clean bulleted list with emoji bullets.`;
+
+            try {
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
+                });
+                
+                const data = await response.json();
+                const text = data.candidates?.[0]?.content?.parts?.[0]?.text || "Could not generate ideas.";
+                
+                modalLoader.style.display = 'none';
+                modalResults.textContent = text;
+            } catch (e) {
+                modalLoader.style.display = 'none';
+                modalResults.textContent = "Error connecting to AI service.";
+            }
+        }
+
+        window.closeModal = () => {
+            modal.style.display = 'none';
+        }
+
+        // Close modal on click outside
+        window.onclick = function(event) {
+            if (event.target == modal) {
+                closeModal();
+            }
+        }
+    </script>
+</body>
+</html>
